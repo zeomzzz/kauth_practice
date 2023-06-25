@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- name space는 UserRepo의 fully qualified name으로 설정한다. -->
+<mapper namespace="com.zeomzzz.kauthPractice.model.dao.UserDao">
+	<!-- 회원가입 -->
+	<insert id="insert" parameterType="User">
+		INSERT INTO USER (userLoginId,
+		userPw, userEmail, userNickname, userWeight, userAddressCity,
+		userAddressGu)
+		VALUES(#{userLoginId}, #{userPw}, #{userEmail},
+		#{userNickname}, #{userWeight} , #{userAddressCity}, #{userAddressGu})
+	</insert>
+
+	<!-- 회원탈퇴 -->
+	<delete id="delete" parameterType="Integer">
+		UPDATE USER
+		SET userIsDeleted =
+		1
+		WHERE userNumId = #{userNumId}
+	</delete>
+
+	<!-- 로그인 -->
+	<select id="selectLoginUser" parameterType="map"
+		resultType="User">
+		SELECT *
+		FROM USER
+		WHERE userLoginId =
+		#{userLoginId} AND userPw = #{userPw} AND userIsDeleted = 0
+	</select>
+
+	<!-- 아이디 중복 확인 -->
+	<select id="selectByLoginId" parameterType="String"
+		resultType="User">
+		SELECT *
+		FROM USER
+		WHERE userLoginId = #{userLoginId}
+	</select>
+
+	<!-- 닉네임 중복 확인 -->
+	<select id="selectByNickname" parameterType="String"
+		resultType="User">
+		SELECT *
+		FROM USER
+		WHERE userNickname = #{userNickname}
+	</select>
+
+	<!-- 캘린더 공개/비공개 설정 -->
+	<update id="updateCalendarStatus" parameterType="map">
+		UPDATE USER
+		<if test="userIsPublic == 0">
+			SET userIsPublic = 0
+		</if>
+		<if test="userIsPublic == 1">
+			SET userIsPublic = 1
+		</if>
+		WHERE userNumId = #{userNumId};
+	</update>
+
+	<!-- 본인 확인 -->
+	<select id="selectUser" parameterType="map" resultType="User">
+		SELECT *
+		FROM USER
+		WHERE userNumId =
+		#{userNumId} AND userPw = #{userPw}
+	</select>
+
+	<!-- 닉네임으로 사용자 검색 -->
+	<select id="selectUsers" parameterType="String"
+		resultType="User">
+		SELECT userNumId, userNickname
+		FROM USER
+		WHERE userNickname LIKE CONCAT('%' #{word}
+		'%')
+	</select>
+
+	<!-- 회원 정보 수정 -->
+	<update id="updateUserInfo" parameterType="User">
+		UPDATE USER
+		SET userPw = #{userPw}, userNickname = #{userNickname}, userWeight = #{userWeight}, userAddressCity
+		=#{userAddressCity}, userAddressGu = #{userAddressGu}
+		WHERE userNumId = #{userNumId};
+	</update>
+	
+	<!-- 체중만 수정 -->
+	<update id="updateWeight" parameterType="map">
+		UPDATE USER
+		SET userWeight = ${userWeight}
+		WHERE userNumId = #{userNumId};
+	</update>
+	
+	<!-- 특정 아이디를 갖는, 회원탈퇴 하지 않은 사용자 찾기 -->
+	<select id="selectUserPw" parameterType="String"
+		resultType="User">
+		SELECT *
+		FROM USER
+		WHERE userLoginId = #{userLoginId} AND userIsDeleted = 0
+	</select>
+</mapper>
