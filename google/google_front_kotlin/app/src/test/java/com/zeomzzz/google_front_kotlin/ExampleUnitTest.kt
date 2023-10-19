@@ -1,4 +1,4 @@
-package com.zeomzzz.googleauthpractice
+package com.zeomzzz.google_front_kotlin
 
 import org.junit.Test
 

@@ -13,5 +13,5 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "GoogleAuthPractice"
+rootProject.name = "google_front_kotlin"
 include(":app")
