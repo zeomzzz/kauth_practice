@@ -1,3 +1,5 @@
+package com.zeomzzz.google_front_kotlin3
+
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
@@ -13,7 +15,6 @@ import com.google.firebase.auth.AuthCredential
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.GoogleAuthProvider
-import com.zeomzzz.google_front_kotlin3.R
 import com.zeomzzz.google_front_kotlin3.databinding.ActivityMainBinding
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -29,6 +30,7 @@ class MainActivity : AppCompatActivity() {
 
     private var email: String = ""
     private var tokenId: String? = null
+    private var uid: String = ""
 
     override fun onCreate(savedInstanceState: Bundle?) {
 
@@ -47,6 +49,7 @@ class MainActivity : AppCompatActivity() {
                     try {
                         task.getResult(ApiException::class.java)?.let { account ->
                             tokenId = account.idToken
+                            Log.e(TAG, "tokenId : $tokenId")
                             if (tokenId != null && tokenId != "") {
                                 val credential: AuthCredential = GoogleAuthProvider.getCredential(account.idToken, null)
                                 firebaseAuth.signInWithCredential(credential)
@@ -54,7 +57,10 @@ class MainActivity : AppCompatActivity() {
                                         if (firebaseAuth.currentUser != null) {
                                             val user: FirebaseUser = firebaseAuth.currentUser!!
                                             email = user.email.toString()
+                                            uid = user.uid
+
                                             Log.e(TAG, "email : $email")
+                                            Log.e(TAG, "uid : $uid")
                                             val googleSignInToken = account.idToken ?: ""
                                             if (googleSignInToken != "") {
                                                 Log.e(TAG, "googleSignInToken : $googleSignInToken")
@@ -82,7 +88,22 @@ class MainActivity : AppCompatActivity() {
                     val signInIntent: Intent = googleSignInClient.signInIntent
                     launcher.launch(signInIntent)
                 }
+                Log.e(TAG, "로그인 합니다.")
             }
+
+            googleLogoutButton.setOnClickListener {
+                CoroutineScope(Dispatchers.IO).launch {
+                    val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                        .requestIdToken(getString(R.string.default_web_client_id))
+                        .requestEmail()
+                        .build()
+                    val googleSignInClient = GoogleSignIn.getClient(this@MainActivity, gso)
+
+                    googleSignInClient.signOut()
+                    Log.e(TAG, "로그아웃 합니다.")
+                }
+            }
+
         }
     }
 }
